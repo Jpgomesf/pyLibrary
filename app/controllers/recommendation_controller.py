@@ -11,7 +11,11 @@ def register_recommendation_routes(app, prefix=''):
 
         recommended_books = RecommendationService.get_recommendations_from_llm(prompt)
 
-        books_list = recommended_books.get("books", [])
+        books_list = next((value for key, value in recommended_books.items() if isinstance(value, list)), None)
+
+        if not books_list:
+            return jsonify({'error': 'No books found in the recommendation response'}), 404
+
         available_books, unavailable_books = RecommendationService.get_available_books(books_list)
 
         return jsonify({

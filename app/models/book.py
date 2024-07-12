@@ -9,5 +9,11 @@ class Book(db.Model):
 
     genre = db.relationship('Genre', backref=db.backref('books', lazy=True))
 
+    def __init__(self, title, author, published_date, genre_id):
+                self.title = title
+                self.author = author
+                self.published_date = published_date
+                self.genre_id = genre_id
+
     def __repr__(self):
         return f'<Book {self.title}>'
