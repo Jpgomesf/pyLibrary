@@ -1,0 +1,21 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: bookstore
+    ports:
+      - "5432:5432"
+
+  web:
+    build: .
+    command: flask run --host=0.0.0.0 --port=3000
+    volumes:
+      - .:/code
+    ports:
+      - "3000:3000"
+    depends_on:
+      - db
