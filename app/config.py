@@ -1,3 +1,10 @@
+import os
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
+
 class Config:
-    SQLALCHEMY_DATABASE_URI = 'postgresql://user:password@db:5432/bookstore'
+    SQLALCHEMY_DATABASE_URI = os.getenv('SQLALCHEMY_DATABASE_URI')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+    OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
