@@ -1,4 +1,5 @@
 import os
+import json
 from openai import OpenAI
 from app.models.book import Book
 
@@ -8,38 +9,55 @@ class RecommendationService:
     )
 
     @staticmethod
-    def get_recommendations_from_llm(prompt):
+    def get_recommendations_from_llm(prompt: str):
         response = RecommendationService.client.chat.completions.create(
-            messages=[
-                {
-                    "role": "user",
-                    "content": prompt,
-                }
-            ],
             model="gpt-3.5-turbo",
-            max_tokens=150
+            response_format={ "type": "json_object" },
+            messages=[
+                {"role": "system", "content": "You are a helpful librarian designed to output JSON. You should recommend a maximum of 3 books."},
+                {"role": "user", "content": prompt}
+            ],
+            max_tokens=350
         )
 
-        recommendations = response.choices[0].message.content
+        print(response.choices[0].message.content)
+        content = response.choices[0].message.content
+        if content is None:
+            raise ValueError("Received None content which cannot be processed.")
+        recommendations = json.loads(content)
         return recommendations
 
     @staticmethod
     def get_available_books(recommended_books):
-        available_books = []
-        unavailable_books = []
+        print(f"Type of recommended_books: {type(recommended_books)}")
+        if isinstance(recommended_books, list) and recommended_books:
+            print(f"Type of first element: {type(recommended_books[0])}")
+            print(f"First element: {recommended_books[0]}")
+        else:
+            print("recommended_books is not a list or is empty")
 
-        for book_title in recommended_books:
-            book = Book.query.filter(Book.title.ilike(f'%{book_title}%')).first()
-            if book:
+        book_titles = [book['title'] for book in recommended_books]
+
+        found_books = Book.query.filter(Book.title.in_(book_titles)).all()
+
+        found_books_dict = {book.title: book for book in found_books}
+
+        available_books = []
+        for book in recommended_books:
+            title = book['title']
+            if title in found_books_dict:
+                db_book = found_books_dict[title]
                 available_books.append({
-                    'id': book.id,
-                    'title': book.title,
-                    'author': book.author,
-                    'published_date': book.published_date,
-                    'genre': book.genre.name,
-                    'genre_id': book.genre_id
+                    'id': db_book.id,
+                    'title': db_book.title,
+                    'author': db_book.author,
+                    'published_date': db_book.published_date,
+                    'genre': db_book.genre.name,
+                    'genre_id': db_book.genre_id,
+                    'description': book.get('summary', ''),
+                    'rating': book.get('rating', '')
                 })
-            else:
-                unavailable_books.append(book_title)
+
+        unavailable_books = [book for book in recommended_books if book['title'] not in found_books_dict]
 
         return available_books, unavailable_books

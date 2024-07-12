@@ -11,7 +11,8 @@ def register_recommendation_routes(app, prefix=''):
 
         recommended_books = RecommendationService.get_recommendations_from_llm(prompt)
 
-        available_books, unavailable_books = RecommendationService.get_available_books(recommended_books)
+        books_list = recommended_books.get("books", [])
+        available_books, unavailable_books = RecommendationService.get_available_books(books_list)
 
         return jsonify({
             'available_books': available_books,

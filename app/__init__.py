@@ -11,6 +11,11 @@ def create_app():
     db.init_app(app)
     migrate.init_app(app, db)
 
+
+    @app.route('/')
+    def index():
+        return "healthy"
+
     with app.app_context():
         from .routes import register_routes
         register_routes(app)
