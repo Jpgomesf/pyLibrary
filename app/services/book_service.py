@@ -20,3 +20,7 @@ class BookService:
     @staticmethod
     def delete_book(book_id):
         return BookRepository.delete(book_id)
+
+    @staticmethod
+    def get_books_by_genre(genre_id):
+        return BookRepository.get_by_genre(genre_id)

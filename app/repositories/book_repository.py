@@ -15,7 +15,8 @@ class BookRepository:
         new_book = Book(
             title=book_data['title'],
             author=book_data['author'],
-            published_date=book_data['published_date']
+            published_date=book_data['published_date'],
+            genre_id=book_data['genre_id']
         )
         db.session.add(new_book)
         db.session.commit()
@@ -27,6 +28,7 @@ class BookRepository:
         book.title = book_data['title']
         book.author = book_data['author']
         book.published_date = book_data['published_date']
+        book.genre_id = book_data['genre_id']
         db.session.commit()
         return book
 
@@ -35,3 +37,14 @@ class BookRepository:
         book = Book.query.get_or_404(book_id)
         db.session.delete(book)
         db.session.commit()
+
+    @staticmethod
+    def get_by_title_or_author(keyword):
+        return Book.query.filter(
+            (Book.title.ilike(f'%{keyword}%')) | 
+            (Book.author.ilike(f'%{keyword}%'))
+        ).all()
+
+    @staticmethod
+    def get_by_genre(genre_id):
+        return Book.query.filter_by(genre_id=genre_id).all()
