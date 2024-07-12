@@ -12,5 +12,9 @@ class User(db.Model):
     preferences = db.relationship('Genre', secondary=user_genre, lazy='subquery',
                                   backref=db.backref('users', lazy=True))
 
+    def __init__(self, name, email):
+        self.name = name
+        self.email = email
+
     def __repr__(self):
         return f'<User {self.name}>'
