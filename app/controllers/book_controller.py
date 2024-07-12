@@ -1,6 +1,5 @@
 from flask import request, jsonify
 from app.services.book_service import BookService
-from flasgger import swag_from
 
 def register_book_routes(app):
     @app.route('/books', methods=['POST'])

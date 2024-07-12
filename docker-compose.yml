@@ -12,7 +12,8 @@ services:
 
   web:
     build: .
-    command: flask run --host=0.0.0.0 --port=3000
+    command: >
+      bash -c "flask db upgrade && flask run --host=0.0.0.0 --port=3000"
     volumes:
       - .:/code
     ports:
