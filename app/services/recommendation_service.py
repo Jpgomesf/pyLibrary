@@ -28,6 +28,25 @@ class RecommendationService:
         return recommendations
 
     @staticmethod
+    def get_translation(prompt: str, lang: str):
+        response = RecommendationService.client.chat.completions.create(
+            model="gpt-4o-mini",
+            response_format={ "type": "json_object" },
+            messages=[
+                {"role": "system", "content": f"You must translate the message to {lang} as a JSON called translated_content"},
+                {"role": "user", "content": prompt}
+            ]
+        )
+
+
+        print(response.choices[0].message.content)
+        content = response.choices[0].message.content
+        if content is None:
+            raise ValueError("Received None content which cannot be processed.")
+        translated_content = json.loads(content)
+        return translated_content
+
+    @staticmethod
     def get_available_books(recommended_books):
         print(f"Type of recommended_books: {type(recommended_books)}")
         if isinstance(recommended_books, list) and recommended_books:
